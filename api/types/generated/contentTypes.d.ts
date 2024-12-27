@@ -372,6 +372,7 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
 export interface ApiPostPost extends Struct.CollectionTypeSchema {
   collectionName: 'posts';
   info: {
+    description: '';
     displayName: 'Post';
     pluralName: 'posts';
     singularName: 'post';
@@ -381,6 +382,7 @@ export interface ApiPostPost extends Struct.CollectionTypeSchema {
   };
   attributes: {
     Author: Schema.Attribute.String;
+    Comments: Schema.Attribute.Blocks;
     Content: Schema.Attribute.Blocks;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
