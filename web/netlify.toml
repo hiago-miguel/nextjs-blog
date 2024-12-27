@@ -1,7 +1,0 @@
-[build]
-  base = "web"                    # Base directory where the Next.js app is located
-  command = "npm run build"        # Regular build command
-  publish = "web/.next"            # SSR publish directory (this is where Next.js builds the app)
-  
-[[plugins]]
-  package = "@netlify/plugin-nextjs" # Enables SSR and other Next.js optimizations for Netlify
