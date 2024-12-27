@@ -1,0 +1,18 @@
+[
+  {
+    "method": "POST",
+    "path": "/auth/local/register",
+    "handler": "auth.register",
+    "config": {
+      "policies": []
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/auth/local",
+    "handler": "auth.local",
+    "config": {
+      "policies": []
+    }
+  }
+]
