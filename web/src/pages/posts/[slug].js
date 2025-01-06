@@ -91,28 +91,22 @@ export default function PostPage({ post }) {
         },
       });
   
-      // Log existing comments for debugging
       console.log('Existing comments:', postRes.data.data.Comments);
   
       // Step 2: Check if Comments exist, if not initialize it as an empty array
       const existingComments = postRes.data.data.Comments || [];
   
-      // Add new comment in the correct block format
+      // Add new comment in the correct block format for Strapi rich text
       const updatedComments = [
         ...existingComments,
         {
           content: [
             {
-              type: 'paragraph',
-              children: [
-                {
-                  type: 'text',
-                  text: comment, // Add your comment text here
-                },
-              ],
-            },
-          ],
-        },
+              type: 'text',  // This tells Strapi that it's plain text content
+              text: comment, // Add your comment text here
+            }
+          ]
+        }
       ];
   
       // Update the post with the new Comments array
@@ -138,7 +132,7 @@ export default function PostPage({ post }) {
       console.error('Error submitting comment:', error.response?.data || error.message);
       toast.error('Failed to submit comment. Please try again.');
     }
-  };   
+  };
 
   const renderContent = (content) =>
     content.map((block, index) =>
