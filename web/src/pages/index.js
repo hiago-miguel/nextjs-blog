@@ -47,7 +47,7 @@ export default function Home({ posts }) {
 
 export async function getStaticProps() {
   try {
-    const { data } = await axios.get(`${process.env.STRAPI_URL}/posts`);
+    const { data } = await axios.get(`${process.env.NEXT_PUBLIC_STRAPI_URL}/posts`);
 
     // Check the structure of the response
     console.log("Fetched posts data:", JSON.stringify(data, null, 2));

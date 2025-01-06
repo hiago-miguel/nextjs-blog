@@ -12,7 +12,7 @@ export default NextAuth({
       },
       async authorize(credentials) {
         try {
-          const { data } = await axios.post(`${process.env.STRAPI_URL}/auth/local`, credentials);
+          const { data } = await axios.post(`${process.env.NEXT_PUBLIC_STRAPI_URL}/auth/local`, credentials);
           return { id: data.user.id, name: data.user.username, email: data.user.email };
         } catch (error) {
           throw new Error('Invalid credentials');

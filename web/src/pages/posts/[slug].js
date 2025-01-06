@@ -5,7 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export async function getStaticPaths() {
-  const apiUrl = process.env.STRAPI_URL || 'http://localhost:1337'; // Base URL without /api
+  const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'; // Base URL without /api
 
   try {
     const res = await axios.get(`${apiUrl}/posts`); // Fetch posts from Strapi
@@ -23,7 +23,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const apiUrl = process.env.STRAPI_URL || 'http://localhost:1337/api'; // Fallback URL
+  const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api'; // Fallback URL
 
   try {
     const res = await axios.get(`${apiUrl}/posts?slug=${params.slug}`);
@@ -53,7 +53,7 @@ export default function PostPage({ post }) {
     }
 
     const fetchComments = async () => {
-      const apiUrl = process.env.STRAPI_URL || 'http://localhost:1337/api';
+      const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
       try {
         const res = await axios.get(`${apiUrl}/posts/${post.documentId}`);
         const postWithComments = res.data.data;
@@ -81,7 +81,7 @@ export default function PostPage({ post }) {
     }
   
     const jwt = localStorage.getItem('jwt');
-    const apiUrl = process.env.STRAPI_URL || 'http://localhost:1337/api';
+    const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
   
     try {
       // Fetch existing Comments
