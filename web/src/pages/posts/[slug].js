@@ -84,37 +84,31 @@ export default function PostPage({ post }) {
     const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
   
     try {
-      // Fetch existing Comments
       const postRes = await axios.get(`${apiUrl}/posts/${post.documentId}`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
       });
   
-      console.log('Existing comments:', postRes.data.data.Comments);
-  
-      // Step 2: Check if Comments exist, if not initialize it as an empty array
       const existingComments = postRes.data.data.Comments || [];
   
-      // Add new comment in the correct block format for Strapi rich text
-      const updatedComments = [
-        ...existingComments,
-        {
-          content: [
-            {
-              type: 'text',  // This tells Strapi that it's plain text content
-              text: comment, // Add your comment text here
-            }
-          ]
-        }
-      ];
+      const newCommentBlock = {
+        type: 'paragraph',
+        children: [
+          {
+            type: 'text',
+            text: comment,
+          },
+        ],
+      };
   
-      // Update the post with the new Comments array
+      const updatedComments = [...existingComments, newCommentBlock];
+
       const res = await axios.put(
         `${apiUrl}/posts/${post.documentId}`,
         {
           data: {
-            Comments: updatedComments, // Correctly formatted comment
+            Comments: updatedComments,
           },
         },
         {
@@ -124,9 +118,8 @@ export default function PostPage({ post }) {
         }
       );
   
-      // Update local Comments state
       setComments(res.data.data.Comments || []);
-      setComment(''); // Clear the input field
+      setComment('');
       toast.success('Comment added successfully!');
     } catch (error) {
       console.error('Error submitting comment:', error.response?.data || error.message);
