@@ -42,7 +42,7 @@ export async function getStaticProps({ params }) {
 
 export default function PostPage({ post }) {
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState(post?.Comments || []);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
@@ -51,21 +51,7 @@ export default function PostPage({ post }) {
     if (jwt) {
       setIsAuthenticated(true);
     }
-
-    const fetchComments = async () => {
-      const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
-      try {
-        const res = await axios.get(`${apiUrl}/posts/${post.documentId}`);
-        const postWithComments = res.data.data;
-        setComments(postWithComments.comments || []);
-      } catch (error) {
-        console.error('Error fetching comments:', error);
-        setComments([]);
-      }
-    };
-
-    if (post?.documentId) fetchComments();
-  }, [post?.documentId]);
+  }, []);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -84,14 +70,6 @@ export default function PostPage({ post }) {
     const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
 
     try {
-      const postRes = await axios.get(`${apiUrl}/posts/${post.documentId}`, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
-
-      const existingComments = postRes.data.data.Comments || [];
-
       const newCommentBlock = {
         type: 'paragraph',
         children: [
@@ -102,7 +80,7 @@ export default function PostPage({ post }) {
         ],
       };
 
-      const updatedComments = [...existingComments, newCommentBlock];
+      const updatedComments = [...comments, newCommentBlock];
 
       const res = await axios.put(
         `${apiUrl}/posts/${post.documentId}`,
