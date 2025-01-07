@@ -5,10 +5,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export async function getStaticPaths() {
-  const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'; // Base URL without /api
+  const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 
   try {
-    const res = await axios.get(`${apiUrl}/posts`); // Fetch posts from Strapi
+    const res = await axios.get(`${apiUrl}/posts`);
     const posts = res.data.data;
 
     const paths = posts.map((post) => ({
@@ -23,7 +23,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api'; // Fallback URL
+  const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
 
   try {
     const res = await axios.get(`${apiUrl}/posts?slug=${params.slug}`);
@@ -69,29 +69,29 @@ export default function PostPage({ post }) {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!comment) {
       toast.error('Please enter a comment.');
       return;
     }
-  
+
     if (!isAuthenticated) {
       toast.error('You must be logged in to comment.');
       return;
     }
-  
+
     const jwt = localStorage.getItem('jwt');
     const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
-  
+
     try {
       const postRes = await axios.get(`${apiUrl}/posts/${post.documentId}`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
       });
-  
+
       const existingComments = postRes.data.data.Comments || [];
-  
+
       const newCommentBlock = {
         type: 'paragraph',
         children: [
@@ -101,7 +101,7 @@ export default function PostPage({ post }) {
           },
         ],
       };
-  
+
       const updatedComments = [...existingComments, newCommentBlock];
 
       const res = await axios.put(
@@ -117,7 +117,7 @@ export default function PostPage({ post }) {
           },
         }
       );
-  
+
       setComments(res.data.data.Comments || []);
       setComment('');
       toast.success('Comment added successfully!');
@@ -128,69 +128,85 @@ export default function PostPage({ post }) {
   };
 
   const renderContent = (content) =>
-    content.map((block, index) =>
-      block.type === 'paragraph' ? (
-        <p key={index}>
-          {block.children.map((child, idx) => (
-            <span key={idx}>{child.text}</span>
-          ))}
-        </p>
-      ) : null
-    );
+    content.map((block, index) => {
+      switch (block.type) {
+        case 'paragraph':
+          return (
+            <p key={index} className="mb-4 text-gray-200">
+              {block.children.map((child, idx) => (
+                <span key={idx}>{child.text}</span>
+              ))}
+            </p>
+          );
+        case 'heading':
+          return (
+            <h2 key={index} className="mb-4 text-lg font-bold text-gray-300">
+              {block.children.map((child, idx) => (
+                <span key={idx}>{child.text}</span>
+              ))}
+            </h2>
+          );
+        case 'icon':
+          return (
+            <span key={index} role="img" aria-label="icon" className="text-2xl">
+              {block.children.map((child, idx) => (
+                <span key={idx}>{child.text}</span>
+              ))}
+            </span>
+          );
+        default:
+          return null;
+      }
+    });
 
   if (!post) {
-    return <div>Post not found</div>;
+    return <div className="text-center text-red-500">Post not found</div>;
   }
 
   return (
-    <div>
-      <h1>{post.Title}</h1>
-      {post.Content && renderContent(post.Content)}
+    <div className="bg-gray-900 text-gray-200 min-h-screen p-6">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-4xl font-bold text-gray-100 mb-6">{post.Title}</h1>
+        {post.Content && renderContent(post.Content)}
 
-      <div>
-        <h2>Comments</h2>
-        <div>
-          {comments.length > 0 ? (
-            comments.map((comment, index) => (
-              <div key={index} className="mb-4">
-                {renderContent([comment])}
-              </div>
-            ))
+        <div className="mt-10">
+          <h2 className="text-2xl font-semibold text-gray-100">Comments</h2>
+          <div className="mt-4 space-y-4">
+            {comments.length > 0 ? (
+              comments.map((comment, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-gray-800 rounded-md shadow-md border border-gray-700"
+                >
+                  {renderContent([comment])}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400">No comments yet.</p>
+            )}
+          </div>
+
+          {isAuthenticated ? (
+            <form onSubmit={handleCommentSubmit} className="mt-6">
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="w-full p-4 bg-gray-800 text-gray-100 rounded-md border border-gray-700 focus:outline-none focus:ring focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                className="w-full mt-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Submit Comment
+              </button>
+            </form>
           ) : (
-            <p>No comments yet.</p>
+            <p className="mt-6 text-red-500">You must be logged in to comment.</p>
           )}
         </div>
-
-        {isAuthenticated ? (
-          <form onSubmit={handleCommentSubmit} className="mt-4">
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Add a comment..."
-              className="w-full p-2 bg-gray-800 text-white rounded-md"
-            />
-            <button
-              type="submit"
-              className="w-full py-2 mt-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Submit Comment
-            </button>
-          </form>
-        ) : (
-          <p className="mt-4 text-red-500">You must be logged in to comment.</p>
-        )}
       </div>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
     </div>
   );
 }
